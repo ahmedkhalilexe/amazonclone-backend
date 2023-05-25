@@ -4,11 +4,11 @@ const router = express.Router();
 const bcrypt =require("bcrypt");
 router.post("/signup", async (req, res) => {
   const { displayName, email, password } = req.body;
+  const findIfUserExists = await userModel.findOne({ email })
+  if(findIfUserExists)return res.status(400).json({message : "user already exists"});
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
   const user = new userModel({ displayName, email, password : hashedPassword });
-  const findIfUserExists = await userModel.findOne({ email })
-  if(findIfUserExists)return res.status(400).json({message : "user already exists"});
   try {
     const createdUser = await user.save();
     res.status(200).send("user signed up");
